@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-service
+  namespace: default
+  labels:
+    app: checkout
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: checkout
+  template:
+    metadata:
+      labels:
+        app: checkout
+    spec:
+      serviceAccountName: checkout-sa # Workload Identity
+      containers:
+      - name: checkout
+        image: gcr.io/PROJECT_ID/checkout-service:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: REDIS_HOST
+          value: "grocery-redis-main" # From Memorystore
+        - name: REDIS_PORT
+          value: "6379"
+        - name: DB_HOST
+          value: "127.0.0.1"
+        # Virtual Stock Strategy
+        # 1. Acquire Lock
+        # 2. Decrement REDIS stock (Virtual)
+        # 3. Process Payment
+        # 4. Commit to DB (Source of Truth)
+        # 5. Release Lock
+        - name: ENABLE_VIRTUAL_STOCK
+          value: "true"
+        - name: LOCK_TTL_MS
+          value: "5000"
+        - name: RETRY_COUNT
+          value: "3"
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10

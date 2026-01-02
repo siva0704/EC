@@ -1,0 +1,37 @@
+# OS & Editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Node.js / Expo (Frontend)
+node_modules/
+.expo/
+dist/
+web-build/
+npm-debug.log
+yarn-error.log
+*.log
+
+# Go (Backend)
+bin/
+*.exe
+*.test
+vendor/
+
+# Terraform (Infrastructure)
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+*.tfvars
+
+# Kubernetes
+kubeconfig
+
+# Secrets / Environment
+.env
+.env.*
+*.pem
+*.key

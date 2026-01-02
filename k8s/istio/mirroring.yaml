@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: order-service-mirror
+spec:
+  hosts:
+  - order-service
+  http:
+  - route:
+    - destination:
+        host: order-service
+        subset: v1
+      weight: 100
+    mirror:
+      host: order-service
+      subset: v2 # New Spanner-backed version
+    mirrorPercentage:
+      value: 10.0

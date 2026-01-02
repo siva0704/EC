@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debezium-connect
+  labels:
+    app: debezium
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debezium
+  template:
+    metadata:
+      labels:
+        app: debezium
+    spec:
+      containers:
+      - name: connect
+        image: debezium/connect:2.3
+        ports:
+        - containerPort: 8083
+        env:
+        - name: BOOTSTRAP_SERVERS
+          value: "kafka-cluster:9092" # Assuming Kafka or Pub/Sub Kafka Connector
+        - name: GROUP_ID
+          value: "1"
+        - name: CONFIG_STORAGE_TOPIC
+          value: "my_connect_configs"
+        - name: OFFSET_STORAGE_TOPIC
+          value: "my_connect_offsets"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debezium-service
+spec:
+  selector:
+    app: debezium
+  ports:
+  - protocol: TCP
+    port: 8083
+    targetPort: 8083
